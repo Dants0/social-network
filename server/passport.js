@@ -1,59 +1,61 @@
-const router = require("express").Router();
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const GithubStrategy = require("passport-github2").Strategy;
+const FacebookStrategy = require("passport-facebook").Strategy;
 const passport = require("passport");
 
-const CLIENT_URL = "http://localhost:3000/";
+const GOOGLE_CLIENT_ID =
+  "546940167452-9mpno9uaqfqhfiv8t91g1ref2gu7euqr.apps.googleusercontent.com";
+const GOOGLE_CLIENT_SECRET = "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";
 
-router.get("/login/success", (req, res) => {
-  if (req.user) {
-    res.status(200).json({
-      success: true,
-      message: "successfull",
-      user: req.user,
-      //   cookies: req.cookies
-    });
-  }
-});
+GITHUB_CLIENT_ID = "your id";
+GITHUB_CLIENT_SECRET = "your id";
 
-router.get("/login/failed", (req, res) => {
-  res.status(401).json({
-    success: false,
-    message: "failure",
-  });
-});
+FACEBOOK_APP_ID = "your id";
+FACEBOOK_APP_SECRET = "your id";
 
-router.get("/logout", (req, res) => {
-  req.logout();
-  res.redirect(CLIENT_URL);
-});
-
-router.get("/google", passport.authenticate("google", { scope: ["profile"] }));
-
-router.get(
-  "/google/callback",
-  passport.authenticate("google", {
-    successRedirect: CLIENT_URL,
-    failureRedirect: "/login/failed",
-  })
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/callback",
+    },
+    function (accessToken, refreshToken, profile, done) {
+      done(null, profile);
+    }
+  )
 );
 
-router.get("/github", passport.authenticate("github", { scope: ["profile"] }));
-
-router.get(
-  "/github/callback",
-  passport.authenticate("github", {
-    successRedirect: CLIENT_URL,
-    failureRedirect: "/login/failed",
-  })
+passport.use(
+  new GithubStrategy(
+    {
+      clientID: GITHUB_CLIENT_ID,
+      clientSecret: GITHUB_CLIENT_SECRET,
+      callbackURL: "/auth/github/callback",
+    },
+    function (accessToken, refreshToken, profile, done) {
+      done(null, profile);
+    }
+  )
 );
 
-router.get("/facebook", passport.authenticate("facebook", { scope: ["profile"] }));
-
-router.get(
-  "/facebook/callback",
-  passport.authenticate("facebook", {
-    successRedirect: CLIENT_URL,
-    failureRedirect: "/login/failed",
-  })
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: FACEBOOK_APP_ID,
+      clientSecret: FACEBOOK_APP_SECRET,
+      callbackURL: "/auth/facebook/callback",
+    },
+    function (accessToken, refreshToken, profile, done) {
+      done(null, profile);
+    }
+  )
 );
 
-module.exports = router
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
